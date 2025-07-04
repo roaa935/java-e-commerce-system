@@ -39,10 +39,13 @@ public class Checkout {
             if (product instanceof Shippable) {
                 Shippable shippable = (Shippable) product;
                 shippingFee += shippable.getWeight() * 10;
+
             }
         }
 
         totalAmount = subtotal + shippingFee;
+
+
 
         if (customer.getBalance() < totalAmount) {
             throw new IllegalArgumentException("Insufficient balance.");
@@ -58,6 +61,24 @@ public class Checkout {
 
         printReceipt();
         printShipmentNotice();
+        sendToShippingService();
+    }
+
+    private void sendToShippingService() {
+        Map<Product, Integer> shippables = new java.util.LinkedHashMap<>();
+
+        for (Map.Entry<Product, Integer> entry : cart.getItems().entrySet()) {
+            Product product = entry.getKey();
+            int quantity = entry.getValue();
+
+            if (product instanceof Shippable) {
+                shippables.put(product, quantity);
+            }
+        }
+
+        if (!shippables.isEmpty()) {
+            ShippingService.assignToDelivery(shippables, "delivery man");
+        }
     }
 
     public void printReceipt() {
